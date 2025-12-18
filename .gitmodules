@@ -1,3 +1,6 @@
 [submodule "mobile/android"]
 	path = mobile/android
 	url = git@github.com:andersontrkz/safety-android.git
+[submodule "firmware/esp32"]
+	path = firmware/esp32
+	url = git@github.com:andersontrkz/safety-esp32.git
