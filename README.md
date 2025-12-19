@@ -1,9 +1,13 @@
 # Safety IoT - Smart Safe System
 
+Safely is a complete IoT smart safe system that integrates an ESP32 (simulated using Wokwi or PlatformIO) with an Android application, communicating through MQTT for real-time monitoring and status synchronization.
+
+
 ## Table of Contents
 - [Overview](#overview)
 - [System Architecture](#system-architecture)
 - [Repository Structure](#repository-structure)
+- [Functional Flows](#functional-flows)
 - [Features](#features)
   - [ESP32 Firmware](#esp32-firmware)
   - [Android App](#android-app)
@@ -11,9 +15,10 @@
   - [Firmware (ESP32)](#firmware-esp32)
   - [App (Android)](#app-android)
 - [Hardware Components](#hardware-components)
-- [Communication Protocol](#communication-protocol)
-- [Development Workflow](#development-workflow)
+- [Communication Protocol](#communication)
 - [Security Considerations](#security)
+- [Technologies](#technologies)
+- [Development Workflow](#development-workflow)
 - [Troubleshooting](#troubleshooting)
 - [Future Improvements](#future-improvements)
 - [License](#license)
@@ -45,8 +50,8 @@ The system allows **real-time monitoring**, secure local access with code entry,
 
 **Components**:
 
-- **ESP32 Firmware**: C++ / PlatformIO / Wokwi
-- **Android App**: Kotlin / Jetpack Compose / Paho MQTT
+- **ESP32 Firmware**: C++ | PlatformIO | Wokwi
+- **Android App**: Kotlin | Jetpack Compose | Paho MQTT
 - **MQTT Broker**: Public HiveMQ broker for messaging
 
 ---
@@ -69,6 +74,63 @@ safety/
 > Uses **Git Submodules** for modular separation of Android app and ESP32 firmware.
 
 -----
+
+
+## Functional Flows
+
+### ESP32 Flows
+
+All flows below were recorded from the ESP32 simulation, sending events via MQTT.
+
+#### System Startup
+
+![System Startup](./docs/assets/01-esp32-start.gif)
+*ESP32 boot sequence with LCD animation, buzzer and LEDs feedback, and system initialization.*
+
+#### Set Security Code
+
+![Set Security Code](./docs/assets/02-esp32-set-code.gif)
+*User defines a new 4-digit code using the keypad and confirms it.*
+
+#### Unlock Safe
+
+![Unlock Safe](./docs/assets/03-esp32-unlock-safe.gif)
+*Correct code entered → safe unlocks, servo opens, status published via MQTT.*
+
+#### Lock Safe
+
+![Lock Safe](./docs/assets/04-esp32-lock-safe.gif)
+*Safe is locked again locally and status is updated remotely.*
+
+#### Mute / Unmute Buzzer
+
+![Mute / Unmute Buzzer](./docs/assets/05-esp32-mute-unmute.gif)
+*User toggles sound alerts while the keypad is used.*
+
+#### Reset Code
+
+![Reset Code](./docs/assets/06-esp32-reset-code.gif)
+*Existing code is cleared and the system returns to setup mode.*
+
+#### Access Denied
+
+![Access Denied](./docs/assets/07-esp32-access-denied.gif)
+*Incorrect code entered → error feedback via LCD, LEDs, and buzzer.*
+
+#### Code Mismatch
+
+![Code Mismatch](./docs/assets/08-esp32-code-mismatch.gif)
+*Code confirmation fails → configuration rejected.*
+
+
+### Android Flows
+
+All flows below were recorded from the Android simulation, receiving events via MQTT.
+
+|                            Safe Locked                            |                             Safe Unlocked                             |
+|-------------------------------------------------------------------|-----------------------------------------------------------------------|
+|     ![Safe Unlocked](./docs/assets/10-android-lock-status.gif)    |      ![Safe Unlocked](./docs/assets/09-android-unlock-status.gif)     |
+| *Android app shows **`LOCKED`** status until it receives **`UNLOCKED`** status and then logs the event to history.* | *Android app receives status updates and toggles between **UNLOCKED** ↔ **LOCKED**, logging all events.* |
 
 
 ## Features
@@ -159,12 +221,72 @@ cd safety
 | ESP32             | MCU               |
 
 
-## Communication Protocol
+## Communication
 
 - MQTT Topic: ``safer/status``
 - Payload: ``LOCKED`` or ``UNLOCKED``
 
 *App subscribes to this topic in real-time.*
+
+
+## Security
+
+- Safe code
+    - Storage class in-memory
+    - Fixed 4-digit code
+
+
+## Technologies
+
+This project combines embedded systems, IoT communication, and modern Android development, using industry-relevant tools and frameworks.
+
+### ESP32
+
+The ESP32 is low-power microcontroller with integrated Wi-Fi and Bluetooth, widely used in IoT applications.
+
+[📚 Official ESP32 Documentation](https://www.espressif.com/en/products/socs/esp32)
+
+
+### Wokwi
+
+Wokwi is an online microcontroller simulator that allows realistic simulation of ESP32 projects without physical hardware.
+
+[📚 Official Wokwi Documentation](https://docs.wokwi.com/)
+
+
+### PlatformIO
+
+PlatformIO is a professional embedded development ecosystem built on top of VS Code.
+
+[📚 Official PlatformIO Documentation](https://docs.platformio.org/)
+
+
+### MQTT
+
+MQTT (Message Queuing Telemetry Transport) is a lightweight publish/subscribe messaging protocol designed for IoT systems.
+
+[📚 Official MQTT Documentation](https://mqtt.org/)
+
+
+### HiveMQ
+
+HiveMQ is a public broker that provides a reliable public MQTT broker suitable for testing and learning.
+
+[📚 Official HiveMQ Documentation](https://www.hivemq.com/public-mqtt-broker/)
+
+
+### Android
+
+The Android application acts as a remote monitoring interface for the smart safe.
+
+[📚 Official Android Documentation](https://developer.android.com/)
+
+
+### Jetpack Compose
+
+Jetpack Compose is Android’s modern, declarative UI toolkit.
+
+[📚 Official Jetpack Compose Documentation](https://developer.android.com/jetpack/compose)
 
 
 ## Development Workflow
@@ -206,12 +328,6 @@ git add mobile/android
 git commit -m "feat(android): update module"
 git push
 ```
-
-## Security
-
-- Safe code
-    - Storage class in-memory
-    - Fixed 4-digit code
 
 
 ## Troubleshooting
