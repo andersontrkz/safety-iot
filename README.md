@@ -7,14 +7,14 @@ Safely is a complete IoT smart safe system that integrates an ESP32 (simulated u
 - [Overview](#overview)
 - [System Architecture](#system-architecture)
 - [Repository Structure](#repository-structure)
-- [Functional Flows](#functional-flows)
-- [Features](#features)
-  - [ESP32 Firmware](#esp32-firmware)
-  - [Android App](#android-app)
 - [Getting Started](#getting-started)
-  - [Firmware (ESP32)](#firmware-esp32)
-  - [App (Android)](#app-android)
+  - [ESP32 Firmware](#firmware-esp32)
+  - [Android App](#app-android)
 - [Hardware Components](#hardware-components)
+- [Features](#features)
+- [Functional Flows](#functional-flows)
+  - [Firmware (ESP32)](#esp32-firmware)
+  - [App (Android)](#android-app)
 - [Communication Protocol](#communication)
 - [Security Considerations](#security)
 - [Technologies](#technologies)
@@ -76,6 +76,112 @@ safety/
 -----
 
 
+## Getting Started
+
+### Remote
+
+#### Firmware ESP32
+
+1. Open the [project simulation link](https://wokwi.com/projects/450795723160817665) in Wokwi.
+
+2. Run simulation in Wokwi.
+
+![Wokwi Simulation](./docs/assets/11-wokwi-simulation.gif)
+
+3. Configure WiFi config if needed.
+
+4. Configure MQTT config if needed.
+
+5. Monitor serial logs for system feedback.
+
+
+### Local
+
+Clone repository including submodules:
+
+```bash
+git clone --recurse-submodules git@github.com:andersontrkz/safety.git
+cd safety
+```
+
+#### Firmware ESP32
+
+        1. Open firmware/esp32 in VS Code.
+
+        2. Use PlatformIO and Wokwi tools.
+
+        3. Build & upload to ESP32.
+
+        4. Configure WiFi config if needed.
+
+        5. Configure MQTT config if needed.
+
+        6. Monitor serial logs for system feedback.
+
+
+#### App Android
+
+        7. Open mobile/android in Android Studio.
+
+        8. Build and run on emulator or physical device.
+
+        9. Configure MQTT config if needed.
+
+        10. The app automatically connects to the MQTT broker and displays safe status.
+
+
+## Hardware Components
+
+```bash
++----------+         +---------------+
+|  Keypad  | ------> |               |
++----------+         |               |
++----------+         |               |
+|   LCD    | <------ |               |
++----------+         |               |
++----------+         |               |
+|   Servo  | <------ |     ESP32     |
++----------+         |               |
++----------+         |               |
+|   LEDs   | <------ |               |
++----------+         |               |
++----------+         |               |
+|  Buzzer  | <------ |               |
++----------+         +---------------+
+
+```
+
+|     Component     |        Pin        |
+| ----------------- | ----------------- |
+| Keypad (R1..R4)   | 13 - 12 - 14 - 27 |
+| Keypad (C1..C4)   | 26 - 25 - 33 - 32 |
+| LCD (I2C)         | 22 - 21           |
+| Servo Motor       | 18                |
+| LED (RED)         | 4                 |
+| LED (GREEN)       | 16                |
+| Buzzer            | 17                |
+| ESP32             | MCU               |
+
+
+## Features
+
+### ESP32 Firmware
+- Keypad input handling for code entry
+- Servo-controlled lock mechanism
+- LED & buzzer hardware feedback
+- LCD messages for user interaction
+- Code setup and verification logic
+- Supports mute/unmute and lock actions
+- WiFi connectivity management
+- MQTT messaging (`safer/status`)
+
+### Android App
+- Displays safe status (locked/unlocked)
+- Shows last access events
+- Built with Jetpack Compose
+- Real-time updates via MQTT (`safer/status`)
+
+
 ## Functional Flows
 
 ### ESP32 Flows
@@ -130,95 +236,7 @@ All flows below were recorded from the Android simulation, receiving events via 
 |                            Safe Locked                            |                             Safe Unlocked                             |
 |-------------------------------------------------------------------|-----------------------------------------------------------------------|
 |     ![Safe Unlocked](./docs/assets/10-android-lock-status.gif)    |      ![Safe Unlocked](./docs/assets/09-android-unlock-status.gif)     |
-| *Android app shows **`LOCKED`** status until it receives **`UNLOCKED`** status and then logs the event to history.* | *Android app receives status updates and toggles between **UNLOCKED** ↔ **LOCKED**, logging all events.* |
-
-
-## Features
-
-### ESP32 Firmware
-- Keypad input handling for code entry
-- Servo-controlled lock mechanism
-- LED & buzzer hardware feedback
-- LCD messages for user interaction
-- Code setup and verification logic
-- Supports mute/unmute and lock actions
-- WiFi connectivity management
-- MQTT messaging (`safer/status`)
-
-### App Android
-- Displays safe status (locked/unlocked)
-- Shows last access events
-- Built with Jetpack Compose
-- Real-time updates via MQTT (`safer/status`)
-
----
-
-
-## Getting Started
-
-Clone repository including submodules:
-
-```bash
-git clone --recurse-submodules git@github.com:andersontrkz/safety.git
-cd safety
-```
-
-### ESP32 Firmware
-
-        1. Open firmware/esp32 in VS Code with PlatformIO OR run simulation in Wokwi.
-
-        2. Or run simulation in Wokwi.
-
-        3. Build & upload to ESP32.
-
-        4. Configure WiFi config if needed.
-
-        5. Configure MQTT config if needed.
-
-        6. Monitor serial logs for system feedback.
-
-### Android App
-
-        7. Open mobile/android in Android Studio.
-
-        8. Build and run on emulator or physical device.
-
-        9. Configure MQTT config if needed.
-
-        10. The app automatically connects to the MQTT broker and displays safe status.
-
-
-## Hardware Components
-
-```bash
-+----------+         +---------------+
-|  Keypad  | ------> |               |
-+----------+         |               |
-+----------+         |               |
-|   LCD    | <------ |               |
-+----------+         |               |
-+----------+         |               |
-|   Servo  | <------ |     ESP32     |
-+----------+         |               |
-+----------+         |               |
-|   LEDs   | <------ |               |
-+----------+         |               |
-+----------+         |               |
-|  Buzzer  | <------ |               |
-+----------+         +---------------+
-
-```
-
-|     Component     |        Pin        |
-| ----------------- | ----------------- |
-| Keypad (R1..R4)   | 13 - 12 - 14 - 27 |
-| Keypad (C1..C4)   | 26 - 25 - 33 - 32 |
-| LCD (I2C)         | 22 - 21           |
-| Servo Motor       | 18                |
-| LED (RED)         | 4                 |
-| LED (GREEN)       | 16                |
-| Buzzer            | 17                |
-| ESP32             | MCU               |
+| *Android app shows **`LOCKED`** status until it receives **`UNLOCKED`** status and then logs the event to history.* | *Android app receives status updates and toggles between **`UNLOCKED`**  ↔ **`LOCKED`**, logging all events.* |
 
 
 ## Communication
